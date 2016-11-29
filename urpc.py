@@ -1,10 +1,21 @@
+# uRPC is meatware:
+#    just send me a meat if you use this piece of code commercialy
+# Feel free to copying and it's always legal until you are good,
+# Illegal copying of this code prohibited by real patsan's law!
+
 import redis
 from enum import Enum
 import string, random
 import json
 import logging
 
+# I think what what this code is more or less self-explaining
+# but i'll add some docstrings, because its legit.
+
+# logging.basicConfig(level=logging.DEBUG)
+
 class uPRCmode(Enum):
+    '''List of possible positions for internal state code'''
     none = 0
     ask = 1
     wait = 2
@@ -12,11 +23,21 @@ class uPRCmode(Enum):
 
 config = dict(
     host = "localhost",
-    db = 5,
+    db = 1,
     socket_timeout = 60)
 
 class uRPC:
+    '''Oversimplistic RPC realisation on top of Redis.'''
     def __init__(self, name = None, db_conf=config):
+        '''create new RPC object (for both, client or server)
+        Params:
+        :name: (optional) name of function which is will be used to name pipe in redis.
+              If None then name of the class without "server" at the end will be used.
+        :db_config: (optional) dict contains keys
+              "host" (host of redis, "localhost" is default),
+              "db" (number of redis's db, 1 is default),
+              "socket_timeout" (default redis server timeout, 60 sec is default)
+        '''
         if not name:
             name = self.__class__.__name__.lower()
             if name.endswith('server'):
@@ -27,6 +48,8 @@ class uRPC:
         self.client_timeout = 10
         
     def connect(self):
+        '''connect to Redis server using options from init.
+        You should not use it direct normally, main loop and messages operations call it anyway.'''
         if not self._connect:
             self._connect = redis.Redis(
                 host=self.config['host'],
@@ -36,6 +59,7 @@ class uRPC:
         return self._connect
 
     def construct_queue(self, mode):
+        '''construct the name of queue or response for replay'''
         if mode == uPRCmode.wait:
             return 'queue:' + self.name
         elif mode == uPRCmode.ask:
@@ -44,12 +68,19 @@ class uRPC:
         return None
 
     def main_loop(self):
+        '''mail loop for RPC server implementation.
+        Wait until message will happened and call self.worker(params).
+        After that returned dictionary will be sent back to invoker as a result'''
         while True:
             message = self.message_wait()
             if message:
                 logging.info("message is " + json.dumps(message, ensure_ascii=False))
                 result = {}
                 result = self.worker(message)
+                if not result:
+                    result = {}
+                elif type(result) != dict:
+                    result = {'result': result}
                 if 'response' in message:
                     _r = message['response']
                     logging.debug("sending back to " + _r + \
@@ -59,20 +90,34 @@ class uRPC:
             logging.debug("tick")
     
     def worker(self, params):
+        '''this method should be overlapped by your implementation.
+        All server works must be implemented here.
+        Params:
+            :params: dict of parameters from client
+        Return: dict (it's mandatory!) of returned values'''
         logging.debug("got hit with " + json.dumps(params, ensure_ascii=False))
         return {}
 
     def timeout(self, sec):
+        '''set timeout for client call. Use it chained like `uRPC("echo").timeout(10)(test="call")`
+        Params:
+            :sec: number of timeout seconds
+        Return:
+            self, for chained use'''
         self.client_timeout = sec
         return self
 
     def __call__(self, **params):
+        '''syntax corn syrup for client call.
+        Normally you will call uRPC as a client like `uRPCClassServer()(parameter="value")`
+        or (if you don't have access to class implementation `uRPC("urpcclass")(parameter="value")`'''
         queue = self.construct_queue(uPRCmode.wait)
         resp = self.message_send(queue, params, wait_for_reply=True, wait_timeout=self.client_timeout)
         if 'response' in resp: del resp['response']
         return resp
 
     def message_send(self, respondent, message, wait_for_reply=False, wait_timeout=10):
+        '''send message directly to queue. Normally you should not use it directly'''
         R = self.connect()
         if wait_for_reply:
             incoming_queue = self.construct_queue(uPRCmode.ask)
@@ -84,6 +129,7 @@ class uRPC:
         return result
 
     def blpop(self, queue, timeout):
+        '''safe redis.blpop with json passing'''
         message = {}
         R = self.connect()
         try:
@@ -98,18 +144,8 @@ class uRPC:
         return message
 
     def message_wait(self):
+        '''wait a message from queue. Normally your should not use it directly'''
         incoming_queue = self.construct_queue(uPRCmode.wait)
         logging.debug("waiting for " + incoming_queue)
         message = self.blpop(incoming_queue, 180)
         return message
-
-class EchoServer(uRPC):
-    def worker(self, params):
-        return {'you said': params}
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
-    u = EchoServer()
-    u.main_loop()
-    
-    # (call it now as uRPC('echo')(alpha = 'omega')
