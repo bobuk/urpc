@@ -149,3 +149,18 @@ class uRPC:
         logging.debug("waiting for " + incoming_queue)
         message = self.blpop(incoming_queue, 180)
         return message
+
+class uRPCClientFabric:
+    def __init__(self, db_config=config):
+        '''fabric for uRPC clients.
+        Params:
+            :db_config: config for redis connection (see uRPC)'''
+        self.clients = {}
+        self.config = db_config
+
+    def __getattr__(self, name):
+        if name not in self.clients:
+            self.clients[name] = uRPC(name, db_conf = self.config)
+        return self.clients[name]
+
+        
