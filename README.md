@@ -35,3 +35,12 @@ By default call timeout is 10 seconds. If you need more (or less) call it like
 add = uRPC('add').timeout(5)
 print(add(a="test", b=" or not"))
 ```
+
+If you have more than 1 rpc method, you can use `uRPCClientFabric` class to generate it
+
+```python
+from urpc import uRPCClientFabric
+rpc = uRPCClientFabric({'host': 'localhost', 'db': 3, 'socket_timeout': 10})
+print(rpc.add(a=1,b=2))
+print(rpc.echo(say='blah'))
+```
