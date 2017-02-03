@@ -8,7 +8,7 @@ setup(name="urpc", version="0.0.6",
       install_requires=[
           'redis'
       ],
-      scripts = ['scripts/urpc-cli']
+      scripts = ['scripts/urpc-cli'],
       classifiers = [
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
