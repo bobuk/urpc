@@ -14,6 +14,20 @@ import logging
 
 # logging.basicConfig(level=logging.DEBUG)
 
+config = dict(
+    host = "localhost",
+    db = 1,
+    socket_timeout = 60)
+
+try:
+    from defaultenv import ENVC as env
+    if ':' in env.urpc:
+        host, db = env.urpc.split(':')
+        config[host] = host
+        config[db] = db
+except:
+    logging.debug('Default configuration used')
+
 class uPRCmode(Enum):
     '''List of possible positions for internal state code'''
     none = 0
@@ -21,10 +35,6 @@ class uPRCmode(Enum):
     wait = 2
     finish = 10
 
-config = dict(
-    host = "localhost",
-    db = 1,
-    socket_timeout = 60)
 
 class uRPC:
     '''Oversimplistic RPC realisation on top of Redis.'''
