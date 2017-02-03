@@ -44,3 +44,12 @@ rpc = uRPCClientFabric({'host': 'localhost', 'db': 3, 'socket_timeout': 10})
 print(rpc.add(a=1,b=2))
 print(rpc.echo(say='blah'))
 ```
+
+For convinience urpc also installs `urpc-cli` script for commandline invocation of calls.
+
+```shell
+$ urpc-cli add a=10 b=20
+{'result': 30}
+$ urpc-cli echo say="blahblahblah"
+{"echo": "blahblahblah"}
+```

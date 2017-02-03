@@ -7,7 +7,7 @@ from pprint import pprint
 def main(args):
     if args:
         cmd, args = args[0], args[1:]
-    if not cmd:
+    else:
         sys.stderr.write('Use urpc-cli with name of a pipe\n')
         sys.exit(-1)
 
