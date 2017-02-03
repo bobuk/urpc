@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+import urpc
+import sys
+import ast
+from pprint import pprint
+
+def main(args):
+    if args:
+        cmd, args = args[0], args[1:]
+    if not cmd:
+        sys.stderr.write('Use urpc-cli with name of a pipe\n')
+        sys.exit(-1)
+
+    cmd = urpc.uRPC(cmd)
+
+    norm_args = {}
+    for arg in args:
+        if '=' not in arg:
+            sys.stderr.write('Use =-separated arguments, urpc-cli ' + cmd + ' a=1 b=2\n')
+            sys.exit(-2)
+        k, v = arg.split('=', 1)
+        try:
+            v = ast.literal_eval(v.strip())
+        except: pass
+        
+        norm_args[k] = v
+        
+    pprint(cmd(**norm_args))
+
+if __name__ == '__main__':
+    main(sys.argv[1:])

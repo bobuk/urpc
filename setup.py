@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-setup(name="urpc", version="0.0.5",
+setup(name="urpc", version="0.0.6",
       py_modules=['urpc'],
       url="http://github.com/bobuk/urpc",
       author="Grigory Bakunov",
@@ -8,6 +8,7 @@ setup(name="urpc", version="0.0.5",
       install_requires=[
           'redis'
       ],
+      scripts = ['scripts/urpc-cli']
       classifiers = [
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
