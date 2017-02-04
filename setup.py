@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-setup(name="urpc", version="0.0.7",
+setup(name="urpc", version="0.1.0",
       py_modules=['urpc'],
       url="http://github.com/bobuk/urpc",
       author="Grigory Bakunov",

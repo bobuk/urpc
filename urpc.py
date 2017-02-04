@@ -35,6 +35,24 @@ class uPRCmode(Enum):
     wait = 2
     finish = 10
 
+class uRPCAsyncAnswer:
+    def __init__(self, queue, db):
+        self.db = db
+        self.queue = queue
+        self.__result = {}
+
+    @property
+    def result(self):
+        if not self.__result:
+            self.ready()
+        return self.__result
+
+    def ready(self):
+        res = self.db.lpop(self.queue)
+        if res:
+            self.__result = json.loads(res.decode('utf-8'))
+            return True
+        return False
 
 class uRPC:
     '''Oversimplistic RPC realisation on top of Redis.'''
@@ -56,7 +74,13 @@ class uRPC:
         self.config = db_conf
         self._connect = None
         self.client_timeout = 10
-        
+        self.setup()
+
+    def setup(self):
+        '''placeholder for your mixins.
+        Always invoked after object creation.'''
+        pass
+
     def connect(self):
         '''connect to Redis server using options from init.
         You should not use it direct normally, main loop and messages operations call it anyway.'''
@@ -126,6 +150,15 @@ class uRPC:
         if 'response' in resp: del resp['response']
         return resp
 
+    def wait(self, **params):
+        '''syntax mayo for async calls.
+        Just use `w = urpc("urpcclass").wait()` to get uRPCAsyncAnswer instead of direct answer.
+        After that you can check `w.ready()` until it returns `True` or just check out `w.result`
+        for a result'''
+        queue = self.construct_queue(uPRCmode.wait)
+        response_queue = self.message_send(queue, params, wait_for_reply=True, wait_timeout = -1)
+        return uRPCAsyncAnswer(response_queue, self.connect())
+
     def message_send(self, respondent, message, wait_for_reply=False, wait_timeout=10):
         '''send message directly to queue. Normally you should not use it directly'''
         R = self.connect()
@@ -135,6 +168,8 @@ class uRPC:
         R.rpush(respondent, json.dumps(message, ensure_ascii=False))
         result = {}
         if wait_for_reply:
+            if wait_timeout == -1:
+                return incoming_queue
             result = self.blpop(incoming_queue, wait_timeout)
         return result
 
