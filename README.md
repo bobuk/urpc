@@ -19,9 +19,9 @@ server = AddServer()
 server.main_loop()
 ```
 
-Please note what with no arguments AddServer will provide function "add" (lowercase "addserver" without "server").
+Please note that with no arguments AddServer will provide function "add" (lowercase "addserver" without "server").
 Also by default it's connected to Redis at localhost and database 1.
-All defaults can be overrided by environment variable `URPC` or with `.env` file. `URPC` variable must contain string with host and database number, which must be used for rpc. For example like `URPC="localhost:9"`. It works for both, server and client.
+All defaults can be overridden by environment variable `URPC` or with `.env` file. `URPC` variable must contain string with host and database number, which must be used for rpc. For example, `URPC="localhost:9"`. It works for both, server and client.
 
 ## Client
 
@@ -55,7 +55,7 @@ print(rpc.echo(say='blah'))
 
 ## Async client
 
-If you don't want to wait until rpc request will be processed, you can use asyncronous version of this call
+If you don't want to wait until rpc request will be processed, you can use asynchronous version of this call
 
 ```python
 fetch = uRPC('urlfetch')
@@ -69,7 +69,7 @@ print(goo.result)
 
 ## Command Line tool
 
-For convinience urpc also installs `urpc-cli` script for commandline invocation of calls.
+For convenience urpc also installs `urpc-cli` script for commandline invocation of calls.
 
 ```shell
 $ urpc-cli add a=10 b=20
