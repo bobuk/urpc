@@ -23,8 +23,8 @@ try:
     from defaultenv import ENVC as env
     if ':' in env.urpc:
         host, db = env.urpc.split(':')
-        config[host] = host
-        config[db] = db
+        config["host"] = host
+        config["db"] = db
 except:
     logging.debug('Default configuration used')
 
