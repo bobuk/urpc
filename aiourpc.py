@@ -64,3 +64,15 @@ class aiouRPCClientFabric(uRPCClientFabric):
         if name not in self.clients:
             self.clients[name] = aiouRPC(name, db_conf = self.config)
         return self.clients[name]
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc_value, traceback):
+        await self.close()
+
+    async def close(self):
+        for name, client in self.clients.items():
+            logging.debug("closing " + str(name) + " now")
+            if client._connect:
+                client._connect.close()
