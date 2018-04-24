@@ -67,6 +67,16 @@ print(goo.result)
 
 `wait` and `result` also compatible with `uRPCClientFabric` variants.
 
+There's also asyncio-compatible version of uRPC, you can use it by import `aiourpc`:
+
+```python
+from aiourpc import aiouRPCClientFabric
+
+async with aiouRPCClientFabric() as rpc:
+    pprint(await rpc.fetch('http://ya.ru'))
+```
+
+
 ## Command Line tool
 
 For convenience urpc also installs `urpc-cli` script for commandline invocation of calls.

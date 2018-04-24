@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
-setup(name="urpc", version="0.1.1",
-      py_modules=['urpc'],
+setup(name="urpc", version="0.2.0",
+      py_modules=['urpc', 'aiourpc'],
       url="http://github.com/bobuk/urpc",
       author="Grigory Bakunov",
       author_email='thebobuk@ya.ru',
