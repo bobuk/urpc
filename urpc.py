@@ -173,6 +173,12 @@ class uRPC:
             result = self.blpop(incoming_queue, wait_timeout)
         return result
 
+    def clear_queue(self, queue = None):
+        if not queue:
+            queue = self.construct_queue(uPRCmode.wait)
+        R = self.connect()
+        R.delete(queue)
+        
     def blpop(self, queue, timeout):
         '''safe redis.blpop with json passing'''
         message = {}

@@ -15,6 +15,10 @@ def main(args):
 
     norm_args = {}
     for arg in args:
+        if arg == '--clear':
+            cmd.clear_queue()
+            sys.stderr.write('queue cleared, exit...\n\n')
+            sys.exit(2)
         if '=' not in arg:
             sys.stderr.write('Use =-separated arguments, urpc-cli ' + cmd + ' a=1 b=2\n')
             sys.exit(-2)
