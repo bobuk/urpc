@@ -137,7 +137,7 @@ class uRPC:
     def main_loop_many(self, num = 5):
         import concurrent.futures
         logging.info('%d process will be spawned' % num)
-        with concurrent.futures.ProcessPoolExecutor(max_workers=num+1) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=num+1) as executor:
             for x in range(num):
                 executor.submit(self.rejoice, x)
         
