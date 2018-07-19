@@ -88,7 +88,8 @@ class uRPC:
             self._connect = redis.Redis(
                 host=self.config['host'],
                 db=self.config['db'],
-                socket_timeout=self.config['socket_timeout'])
+                socket_timeout=self.config['socket_timeout']
+            )
             logging.debug("Connecting to " + self.config['host'] + "/" + str(self.config['db']))
         return self._connect
 
@@ -101,14 +102,19 @@ class uRPC:
                 random.choice(string.ascii_uppercase) for x in range(12))
         return None
 
-    def main_loop(self):
+    def main_loop(self, alias=None):
         '''mail loop for RPC server implementation.
         Wait until message will happened and call self.worker(params).
         After that returned dictionary will be sent back to invoker as a result'''
+        if alias:
+            self.process_num = alias
+            alias = str(alias) + ': '
+        else:
+            alias = ''
         while True:
             message = self.message_wait()
             if message:
-                logging.info("message is " + json.dumps(message, ensure_ascii=False))
+                logging.info(str(alias) + "message is " + json.dumps(message, ensure_ascii=False))
                 result = {}
                 result = self.worker(message)
                 if not result:
@@ -122,7 +128,14 @@ class uRPC:
                     del message['response']
                     self.message_send(_r, result, wait_for_reply = False)
             logging.debug("tick")
-    
+
+    def main_loop_many(self, num = 5):
+        import concurrent.futures
+        logging.info('%d process will be spouned' % num)
+        with concurrent.futures.ProcessPoolExecutor(max_workers=num) as executor:
+            for x in range(num):
+                executor.submit(self.main_loop, x)
+        
     def worker(self, params):
         '''this method should be overlapped by your implementation.
         All server works must be implemented here.
