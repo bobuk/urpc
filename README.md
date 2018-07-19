@@ -23,6 +23,8 @@ Please note that with no arguments AddServer will provide function "add" (lowerc
 Also by default it's connected to Redis at localhost and database 1.
 All defaults can be overridden by environment variable `URPC` or with `.env` file. `URPC` variable must contain string with host and database number, which must be used for rpc. For example, `URPC="localhost:9"`. It works for both, server and client.
 
+Since version 0.3 it's possible to do `server.main_loop_many(N)` where `N` is number of workers which run in parallel.
+
 ## Client
 
 On the client side you can use it like this:
