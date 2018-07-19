@@ -129,12 +129,17 @@ class uRPC:
                     self.message_send(_r, result, wait_for_reply = False)
             logging.debug("tick")
 
+    def rejoice(self, num):
+        T = self.__class__(name=self.name, db_conf=self.config)
+        T.main_loop(num)
+        return T
+    
     def main_loop_many(self, num = 5):
         import concurrent.futures
-        logging.info('%d process will be spouned' % num)
-        with concurrent.futures.ProcessPoolExecutor(max_workers=num) as executor:
+        logging.info('%d process will be spawned' % num)
+        with concurrent.futures.ProcessPoolExecutor(max_workers=num+1) as executor:
             for x in range(num):
-                executor.submit(self.main_loop, x)
+                executor.submit(self.rejoice, x)
         
     def worker(self, params):
         '''this method should be overlapped by your implementation.
