@@ -9,7 +9,7 @@ class MultiServer(uRPC):
     def worker(self, params):
         time.sleep(0.3)
         return {
-            'number': 'this is process number %d' % self.process_num
+            'number': 'this is process number %s' % (str(self.process_num) if self.process_num >=0 else 'root')
         }
 
 if __name__ == '__main__':

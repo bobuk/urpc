@@ -90,7 +90,9 @@ class uRPC:
                 db=self.config['db'],
                 socket_timeout=self.config['socket_timeout']
             )
-            logging.debug("Connecting to " + self.config['host'] + "/" + str(self.config['db']))
+            logging.debug("Connecting to " + self.config['host'] + "/" + str(self.config['db']) + 
+                          ('::' + (str(self.process_num) if hasattr(self, 'process_num') else 'root'))
+            )
         return self._connect
 
     def construct_queue(self, mode):
@@ -110,7 +112,8 @@ class uRPC:
             self.process_num = alias
             alias = str(alias) + ': '
         else:
-            alias = ''
+            alias = 'root: '
+            self.process_num = -1
         while True:
             message = self.message_wait()
             if message:
@@ -137,7 +140,7 @@ class uRPC:
     def main_loop_many(self, num = 5):
         import concurrent.futures
         logging.info('%d process will be spawned' % num)
-        with concurrent.futures.ThreadPoolExecutor(max_workers=num+1) as executor:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=num+1) as executor:
             for x in range(num):
                 executor.submit(self.rejoice, x)
         

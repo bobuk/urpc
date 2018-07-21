@@ -1,6 +1,8 @@
 import sys
 from pprint import pprint
 sys.path.append('../../')
+import logging
+logging.basicConfig(level=logging.INFO)
 
 from urpc import uRPCClientFabric
 rpc = uRPCClientFabric()
