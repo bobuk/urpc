@@ -118,7 +118,6 @@ class uRPC:
             message = self.message_wait()
             if message:
                 logging.info(str(alias) + "message is " + json.dumps(message, ensure_ascii=False))
-                result = {}
                 result = self.worker(message)
                 if not result:
                     result = {}
@@ -167,7 +166,7 @@ class uRPC:
         Normally you will call uRPC as a client like `uRPCClassServer()(parameter="value")`
         or (if you don't have access to class implementation `uRPC("urpcclass")(parameter="value")`'''
         queue = self.construct_queue(uPRCmode.wait)
-        resp = self.message_send(queue, params, wait_for_reply=True, wait_timeout=self.client_timeout)
+        resp = self.message_send(queue, params, wait_for_reply=params.get('wait', True), wait_timeout=self.client_timeout)
         if 'response' in resp: del resp['response']
         return resp
 
@@ -177,7 +176,7 @@ class uRPC:
         After that you can check `w.ready()` until it returns `True` or just check out `w.result`
         for a result'''
         queue = self.construct_queue(uPRCmode.wait)
-        response_queue = self.message_send(queue, params, wait_for_reply=True, wait_timeout = -1)
+        response_queue = self.message_send(queue, params, wait_for_reply=params.get('wait', True), wait_timeout = -1)
         return uRPCAsyncAnswer(response_queue, self.connect())
 
     def message_send(self, respondent, message, wait_for_reply=False, wait_timeout=10):

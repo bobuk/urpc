@@ -26,7 +26,7 @@ class aiouRPC(uRPC):
         Normally you will call uRPC as a client like `uRPCClassServer()(parameter="value")`
         or (if you don't have access to class implementation `uRPC("urpcclass")(parameter="value")`'''
         queue = self.construct_queue(uPRCmode.wait)
-        resp = await self.message_send(queue, params, wait_for_reply=True, wait_timeout=self.client_timeout)
+        resp = await self.message_send(queue, params, wait_for_reply=params.get('wait', True), wait_timeout=self.client_timeout)
         if 'response' in resp: del resp['response']
         return resp
 
